@@ -522,6 +522,7 @@ button:hover {
     right: 10px;
     bottom: 25px;
     max-width: 50%;
+    display: none; /* I added this */
   }
 
   .basic-info{
