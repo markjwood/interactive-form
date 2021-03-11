@@ -37,38 +37,26 @@ jobRole.addEventListener('change', (option) => {
 
 shirtColor.disabled = true;
 
-  // Problem:
-  // Event listener below works as expected the first time.
-  // If I select one option, then another, it enables/disables
-  // the appropriate options.
-  // BUT... if I 'change my mind,' it doesn't work.
-  // I'm going to try creating a function to enable & disable,
-  // then use that in the event listener.
-  // I have no idea why I think that'll work, but I'll give it
-  // a shot.
-  
-const colorEnableDisable = () => {
-  // function to enable/disable color options
-}
-
 shirtDesign.addEventListener('change', e => {
   shirtColor.disabled = false;
-  console.log(e.target.value);
-  let isFirst = false;
+  let firstChoice = true;
+  
   for (let i = 0; i < shirtColorOptions.length; i++) {
-    const option = e.target.value;
+    const design = e.target.value;
     const dataTheme = shirtColorOptions[i].getAttribute("data-theme");
-    shirtColorOptions[0].removeAttribute("selected");
-    if (option === dataTheme) {
+
+    if (design === dataTheme) {
       shirtColorOptions[i].hidden = false;
-      if (!isFirst) {
+      if (firstChoice) {
         shirtColorOptions[i].setAttribute("selected", true);
-        isFirst = true;
+        firstChoice = false;
       }
     } else {
       shirtColorOptions[i].hidden = true;
+      shirtColorOptions[i].removeAttribute("selected");
     }
   }
+
 });
 
 // "Register for Activities" section
