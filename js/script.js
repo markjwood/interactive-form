@@ -2,7 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Global Variables
 
+const formElement = document.querySelector("form");
 const nameInput = document.getElementById("name");
+const emailInput = document.getElementById("email");
 const jobRole = document.getElementById("title");
 const otherJobRole = document.getElementById("other-job-role");
 const shirtDesign = document.getElementById("design");
@@ -12,8 +14,13 @@ const activities = document.getElementById("activities");
 const totalCostP = document.getElementById("activities-cost");
 const payment = document.getElementById("payment");
 const creditCard = document.getElementById("credit-card");
+const cardNumber = document.getElementById("cc-num");
 const payPal = document.getElementById("paypal");
 const btc = document.getElementById("bitcoin");
+const zip = document.getElementById("zip");
+const cvv = document.getElementById("cvv");
+const expMonth = document.getElementById("exp-month");
+const expYear = document.getElementById("exp-year");
 
 // Give name input field focus
 
@@ -65,12 +72,13 @@ let totalCost = 0;
 
 activities.addEventListener("change", e => {
   const activityCost = parseInt(e.target.getAttribute("data-cost"));
-  if (e.target.checked) {
-    totalCost += activityCost;
-  } else {
-    totalCost -= activityCost;
-  }
+  e.target.checked ? totalCost += activityCost : totalCost -= activityCost;
+
   totalCostP.innerHTML = `Total: $${totalCost}`;
+  if (totalCost >> 0) {
+    activities.parentElement.classList.add('valid');
+    activities.parentElement.classList.remove('not-valid');
+  }
 });
 
 // "Payment Info" section
@@ -85,6 +93,7 @@ payment.children[1].setAttribute("selected", true);
 
 payment.addEventListener("change", e => {
   const paymentOption = e.target.value;
+
   if (paymentOption === 'bitcoin') {
     btc.style.display = "block";
     payPal.style.display = "none";
@@ -99,5 +108,109 @@ payment.addEventListener("change", e => {
     creditCard.style.display = "block";
   }
 });
+
+// Form Validation
+
+  // submit event listener
+
+formElement.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+    // test functions
+  const testFuncs = {
+    emailInput: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput.value),
+    nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value),
+    cardNumber: /^[0-9]{13,16}$/.test(cardNumber.value),
+    zip: /^\d{5}$/.test(zip.value),
+    cvv: /^\d{3}$/.test(cvv.value)
+  }
+
+  for (const test in testFuncs) {
+    if ((test !== 'cardNumber' && test !== 'zip' && test !== 'cvv') || payment.value === 'credit-card') {
+      if (!testFuncs[test]) {
+        console.log(`${test}: ${testFuncs[test]}`);
+        console.log(eval(test).parentElement);
+        eval(test).parentElement.classList.add('not-valid');
+        eval(test).parentElement.classList.remove('valid');
+      } else {
+        eval(test).parentElement.classList.add('valid');
+        eval(test).parentElement.classList.remove('not-valid');
+      }
+    } 
+  }
+
+  if (totalCost === 0) {
+    e.preventDefault();
+    console.log('No activities have been selected');
+    activities.classList.add('not-valid');
+    activities.classList.remove('valid');
+  } else {
+    activities.classList.add('valid');
+    activities.classList.remove('not-valid');
+  }
+  
+  // if (payment.value === 'credit-card') {
+  //   if (!ccTest(cardNumber.value)) {
+  //     e.preventDefault();
+  //     console.log('Card number is invalid');
+  //     cardNumber.parentElement.classList.add('not-valid');
+  //     cardNumber.parentElement.classList.remove('valid');
+  //   } else {
+  //     cardNumber.parentElement.classList.add('valid');
+  //     cardNumber.parentElement.classList.remove('not-valid');
+  //   }
+    
+  //   if (!zipTest(zip.value)) {
+  //     e.preventDefault();
+  //     console.log('Zipcode is invalid.');
+  //     zip.parentElement.classList.add('not-valid');
+  //     zip.parentElement.classList.remove('valid');
+  //   } else {
+  //     zip.parentElement.classList.add('valid');
+  //     zip.parentElement.classList.remove('not-valid');
+  //   }
+
+  //   if (!cvvTest(cvv.value)) {
+  //     e.preventDefault();
+  //     console.log('CVV is invalid.');
+  //     cvv.parentElement.classList.add('not-valid');
+  //     cvv.parentElement.classList.remove('valid');
+  //   } else {
+  //     cvv.parentElement.classList.add('valid');
+  //     cvv.parentElement.classList.remove('not-valid');
+  //   }
+
+  //   if (isNaN(parseInt(expMonth.value)) || isNaN(parseInt(expYear.value))) {
+  //     e.preventDefault();
+  //     console.log('Please select card expiration date & year.');
+  //     expMonth.parentElement.classList.add('not-valid');
+  //     expYear.parentElement.classList.add('not-valid');
+  //     expMonth.parentElement.classList.remove('valid');
+  //     expYear.parentElement.classList.remove('valid');
+  //   } else {
+  //     expMonth.parentElement.classList.add('valid');
+  //     expYear.parentElement.classList.add('valid');
+  //     expMonth.parentElement.classList.remove('not-valid');
+  //     expYear.parentElement.classList.remove('not-valid');
+  //   }
+
+  // } else {
+  //   console.log(payment.value);
+  // }
+});
+
+// Accessibility
+
+  // Add focus highlight on activities
+const checkboxes = activities.querySelectorAll('[type="checkbox"]');
+
+for (let i = 0; i < checkboxes.length; i++) {
+  checkboxes[i].addEventListener('focus', e => {
+    e.target.parentElement.classList.add('focus');
+  });
+  checkboxes[i].addEventListener('blur', e => {
+    e.target.parentElement.classList.remove('focus');
+  });
+}
 
 });
