@@ -114,28 +114,48 @@ payment.addEventListener("change", e => {
   // submit event listener
 
 formElement.addEventListener("submit", (e) => {
-  e.preventDefault();
+  // e.preventDefault();
 
     // test functions
-  const testFuncs = {
+  let testFuncs = {
     emailInput: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput.value),
-    nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value),
-    cardNumber: /^[0-9]{13,16}$/.test(cardNumber.value),
-    zip: /^\d{5}$/.test(zip.value),
-    cvv: /^\d{3}$/.test(cvv.value)
+    nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value)
   }
 
+  if (payment.value === 'credit-card') {
+    // additional tests for credit card payment only
+    testFuncs.cardNumber = /^[0-9]{13,16}$/.test(cardNumber.value);
+    testFuncs.zip = /^\d{5}$/.test(zip.value);
+    testFuncs.cvv = /^\d{3}$/.test(cvv.value);
+    testFuncs.expMonth = !isNaN(parseInt(expMonth.value));
+    testFuncs.expYear = !isNaN(parseInt(expYear.value));
+  } else {
+    delete testFuncs.expMonth;
+    delete testFuncs.expYear;
+    delete testFuncs.zip;
+    delete testFuncs.cvv;
+  }
+
+    // run test functions
   for (const test in testFuncs) {
-    if ((test !== 'cardNumber' && test !== 'zip' && test !== 'cvv') || payment.value === 'credit-card') {
-      if (!testFuncs[test]) {
-        console.log(`${test}: ${testFuncs[test]}`);
-        console.log(eval(test).parentElement);
-        eval(test).parentElement.classList.add('not-valid');
-        eval(test).parentElement.classList.remove('valid');
-      } else {
-        eval(test).parentElement.classList.add('valid');
-        eval(test).parentElement.classList.remove('not-valid');
+    const hint = eval(test).nextElementSibling;
+    if (!testFuncs[test]) {
+      // invalid
+      e.preventDefault();
+      console.log(`${test}: ${testFuncs[test]}`);
+      console.log(eval(test).parentElement);
+      if (hint) {
+        // display hint if it exists
+        hint.style.display = 'block';
       }
+      eval(test).parentElement.classList.add('not-valid');
+      eval(test).parentElement.classList.remove('valid');
+    } else {
+      if (hint) {
+        hint.style.display = 'none';
+      }
+      // eval(test).parentElement.classList.add('valid');
+      eval(test).parentElement.classList.remove('not-valid');
     } 
   }
 
@@ -148,55 +168,6 @@ formElement.addEventListener("submit", (e) => {
     activities.classList.add('valid');
     activities.classList.remove('not-valid');
   }
-  
-  // if (payment.value === 'credit-card') {
-  //   if (!ccTest(cardNumber.value)) {
-  //     e.preventDefault();
-  //     console.log('Card number is invalid');
-  //     cardNumber.parentElement.classList.add('not-valid');
-  //     cardNumber.parentElement.classList.remove('valid');
-  //   } else {
-  //     cardNumber.parentElement.classList.add('valid');
-  //     cardNumber.parentElement.classList.remove('not-valid');
-  //   }
-    
-  //   if (!zipTest(zip.value)) {
-  //     e.preventDefault();
-  //     console.log('Zipcode is invalid.');
-  //     zip.parentElement.classList.add('not-valid');
-  //     zip.parentElement.classList.remove('valid');
-  //   } else {
-  //     zip.parentElement.classList.add('valid');
-  //     zip.parentElement.classList.remove('not-valid');
-  //   }
-
-  //   if (!cvvTest(cvv.value)) {
-  //     e.preventDefault();
-  //     console.log('CVV is invalid.');
-  //     cvv.parentElement.classList.add('not-valid');
-  //     cvv.parentElement.classList.remove('valid');
-  //   } else {
-  //     cvv.parentElement.classList.add('valid');
-  //     cvv.parentElement.classList.remove('not-valid');
-  //   }
-
-  //   if (isNaN(parseInt(expMonth.value)) || isNaN(parseInt(expYear.value))) {
-  //     e.preventDefault();
-  //     console.log('Please select card expiration date & year.');
-  //     expMonth.parentElement.classList.add('not-valid');
-  //     expYear.parentElement.classList.add('not-valid');
-  //     expMonth.parentElement.classList.remove('valid');
-  //     expYear.parentElement.classList.remove('valid');
-  //   } else {
-  //     expMonth.parentElement.classList.add('valid');
-  //     expYear.parentElement.classList.add('valid');
-  //     expMonth.parentElement.classList.remove('not-valid');
-  //     expYear.parentElement.classList.remove('not-valid');
-  //   }
-
-  // } else {
-  //   console.log(payment.value);
-  // }
 });
 
 // Accessibility
@@ -209,7 +180,7 @@ for (let i = 0; i < checkboxes.length; i++) {
     e.target.parentElement.classList.add('focus');
   });
   checkboxes[i].addEventListener('blur', e => {
-    e.target.parentElement.classList.remove('focus');
+    document.querySelector('.focus').classList.remove('focus');
   });
 }
 
