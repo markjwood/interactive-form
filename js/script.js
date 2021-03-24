@@ -124,21 +124,30 @@ creditCard.style.display = "block";
 payment.children[1].setAttribute("selected", true);
 
 payment.addEventListener("change", e => {
+  const paymentChoices = {
+    creditCard: 'credit-card',
+    payPal: 'paypal',
+    btc: 'bitcoin'
+  };
   const paymentOption = e.target.value;
 
-  if (paymentOption === 'bitcoin') {
-    btc.style.display = "block";
-    payPal.style.display = "none";
-    creditCard.style.display = "none";
-  } else if (paymentOption === 'paypal') {
-    payPal.style.display = "block";
-    btc.style.display = "none";
-    creditCard.style.display = "none";
-  } else {
-    payPal.style.display = "none";
-    btc.style.display = "none";
-    creditCard.style.display = "block";
+  for (choice in paymentChoices) {
+    paymentOption === paymentChoices[choice] ? eval(choice).style.display = 'block' : eval(choice).style.display = 'none';
   }
+
+  // if (paymentOption === 'bitcoin') {
+  //   btc.style.display = "block";
+  //   payPal.style.display = "none";
+  //   creditCard.style.display = "none";
+  // } else if (paymentOption === 'paypal') {
+  //   payPal.style.display = "block";
+  //   btc.style.display = "none";
+  //   creditCard.style.display = "none";
+  // } else {
+  //   payPal.style.display = "none";
+  //   btc.style.display = "none";
+  //   creditCard.style.display = "block";
+  // }
 });
 
 // Form Validation
