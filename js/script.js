@@ -70,7 +70,6 @@ shirtDesign.addEventListener('change', e => {
 // "Register for Activities" section
 
 let totalCost = 0;
-let committedTimes = [];
 
   // Select "Main Conference" by default and disable
 // let totalCost = 200;
@@ -143,52 +142,20 @@ payment.addEventListener("change", e => {
 });
 
 // Form Validation
-  // test functions
-
-let testFuncs = {
-  emailInput: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput.value),
-  nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value)
-}
-  // validation functions 
-
-const checker = e => {
-  const hint = eval(e).nextElementSibling;
-  console.log(testFuncs);
-  if (payment.value === 'credit-card') {
-    testFuncs.cardNumber = /^[0-9]{13,16}$/.test(cardNumber.value);
-    testFuncs.zip = /^\d{5}$/.test(zip.value);
-    testFuncs.cvv = /^\d{3}$/.test(cvv.value);
-    testFuncs.expMonth = !isNaN(parseInt(expMonth.value));
-    testFuncs.expYear = !isNaN(parseInt(expYear.value));
-  } else {
-    delete testFuncs.expMonth;
-    delete testFuncs.expYear;
-    delete testFuncs.zip;
-    delete testFuncs.cvv;
-  }
-  
-  if (testFuncs[e] === false) {
-    if (hint) {
-      hint.style.display = 'block';
-    }
-    eval(e).parentElement.classList.add('not-valid');
-    eval(e).parentElement.classList.remove('valid');
-  } else {
-    if (hint) {
-      hint.style.display = 'none';
-    }
-    eval(e).parentElement.classList.add('valid');
-    eval(e).parentElement.classList.remove('not-valid');
-  }
-}
-
 
   // submit event listener
 
 formElement.addEventListener("submit", (e) => {
   // e.preventDefault();
 
+    // test functions
+  let testFuncs = {
+    emailInput: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput.value),
+    nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value)
+  }
+
   if (payment.value === 'credit-card') {
+    // additional tests for credit card payment only
     testFuncs.cardNumber = /^[0-9]{13,16}$/.test(cardNumber.value);
     testFuncs.zip = /^\d{5}$/.test(zip.value);
     testFuncs.cvv = /^\d{3}$/.test(cvv.value);
@@ -201,69 +168,38 @@ formElement.addEventListener("submit", (e) => {
     delete testFuncs.cvv;
   }
 
+    // run test functions
   for (const test in testFuncs) {
-    if (testFuncs[test] === false) {
+    const hint = eval(test).nextElementSibling;
+    if (!testFuncs[test]) {
+      // invalid
       e.preventDefault();
-    }
-    checker(test);
+      console.log(`${test}: ${testFuncs[test]}`);
+      console.log(eval(test).parentElement);
+      if (hint) {
+        // display hint if it exists
+        hint.style.display = 'block';
+      }
+      eval(test).parentElement.classList.add('not-valid');
+      eval(test).parentElement.classList.remove('valid');
+    } else {
+      if (hint) {
+        hint.style.display = 'none';
+      }
+      // eval(test).parentElement.classList.add('valid');
+      eval(test).parentElement.classList.remove('not-valid');
+    } 
   }
 
-// disabled
-    // test functions
-  // let testFuncs = {
-  //   emailInput: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput.value),
-  //   nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value)
-  // }
-
-  // if (payment.value === 'credit-card') {
-  //   // additional tests for credit card payment only
-  //   testFuncs.cardNumber = /^[0-9]{13,16}$/.test(cardNumber.value);
-  //   testFuncs.zip = /^\d{5}$/.test(zip.value);
-  //   testFuncs.cvv = /^\d{3}$/.test(cvv.value);
-  //   testFuncs.expMonth = !isNaN(parseInt(expMonth.value));
-  //   testFuncs.expYear = !isNaN(parseInt(expYear.value));
-  // } else {
-  //   delete testFuncs.expMonth;
-  //   delete testFuncs.expYear;
-  //   delete testFuncs.zip;
-  //   delete testFuncs.cvv;
-  // }
-
-  //   // run test functions
-  // for (const test in testFuncs) {
-  //   const hint = eval(test).nextElementSibling;
-  //   if (!testFuncs[test]) {
-  //     // invalid
-  //     e.preventDefault();
-  //     console.log(`${test}: ${testFuncs[test]}`);
-  //     console.log(eval(test).parentElement);
-  //     if (hint) {
-  //       // display hint if it exists
-  //       hint.style.display = 'block';
-  //     }
-  //     eval(test).parentElement.classList.add('not-valid');
-  //     eval(test).parentElement.classList.remove('valid');
-  //   } else {
-  //     if (hint) {
-  //       hint.style.display = 'none';
-  //     }
-  //     // eval(test).parentElement.classList.add('valid');
-  //     eval(test).parentElement.classList.remove('not-valid');
-  //   } 
-  // }
-
-  // if (totalCost === 0) {
-  //   e.preventDefault();
-  //   console.log('No activities have been selected');
-  //   activities.classList.add('not-valid');
-  //   activities.classList.remove('valid');
-  // } else {
-  //   activities.classList.add('valid');
-  //   activities.classList.remove('not-valid');
-  // }
-
-// end disabled
-
+  if (totalCost === 0) {
+    e.preventDefault();
+    console.log('No activities have been selected');
+    activities.classList.add('not-valid');
+    activities.classList.remove('valid');
+  } else {
+    activities.classList.add('valid');
+    activities.classList.remove('not-valid');
+  }
 });
 
 // Accessibility
@@ -275,7 +211,7 @@ for (let i = 0; i < checkboxes.length; i++) {
   checkboxes[i].addEventListener('focus', e => {
     e.target.parentElement.classList.add('focus');
   });
-  checkboxes[i].addEventListener('blur', e => {
+  checkboxes[i].addEventListener('blur', () => {
     document.querySelector('.focus').classList.remove('focus');
   });
 }
