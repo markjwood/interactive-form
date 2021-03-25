@@ -31,13 +31,7 @@ nameInput.focus();
 // Display when "other" is selected
 otherJobRole.style.display = "none";
 
-jobRole.addEventListener('change', (option) => {
-  if (option.target.value === 'other') {
-    otherJobRole.style.display = "";
-  } else {
-    otherJobRole.style.display = "none";
-  }
-});
+jobRole.addEventListener('change', (option) => option.target.value === 'other' ? otherJobRole.style.display = "" : otherJobRole.style.display = "none");
 
 // "T-shirt info" section
 
@@ -86,14 +80,14 @@ const activityCheck = activity => {
     for (let i = 0; i < activitiesInputs.length; i++) {
       if (activitiesInputs[i].getAttribute('data-day-and-time') === time && !activitiesInputs[i].checked) {
         activitiesInputs[i].disabled = true;
-        activitiesInputs[i].parentElement.style.backgroundColor = '#f1f1f1';
+        activitiesInputs[i].parentElement.classList.add('disabled');
       }
     }
   } else {
     for (let i = 0; i < activitiesInputs.length; i++) {
       if (activitiesInputs[i].getAttribute('data-day-and-time') === time && !activitiesInputs[i].checked) {
         activitiesInputs[i].disabled = false;
-        activitiesInputs[i].parentElement.style.backgroundColor = '';
+        activitiesInputs[i].parentElement.classList.remove('disabled');
       }
     }
   }
@@ -138,20 +132,19 @@ payment.addEventListener("change", e => {
 
 // Form Validation
 
+  // test functions
+let testFuncs = {
+  emailInput: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput.value),
+  nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value)
+}
+
   // submit event listener
 
 formElement.addEventListener("submit", (e) => {
   // e.preventDefault();
 
-    // test functions
-  let testFuncs = {
-    emailInput: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput.value),
-    nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value)
-  }
-
   if (payment.value === 'credit-card') {
     // additional tests for credit card payment only
-    testFuncs.cardNumber = /^[0-9]{13,16}$/.test(cardNumber.value);
     testFuncs.zip = /^\d{5}$/.test(zip.value);
     testFuncs.cvv = /^\d{3}$/.test(cvv.value);
     testFuncs.expMonth = !isNaN(parseInt(expMonth.value));
@@ -165,7 +158,8 @@ formElement.addEventListener("submit", (e) => {
 
     // run test functions
   for (const test in testFuncs) {
-    const hint = eval(test).nextElementSibling;
+    const hint = eval(test).nextElementSibling && eval(test).nextElementSibling.classList.contains('hint') ? eval(test).nextElementSibling : null;
+    
     if (!testFuncs[test]) {
       // invalid
       e.preventDefault();
@@ -197,6 +191,18 @@ formElement.addEventListener("submit", (e) => {
   }
 });
 
+  // Email real-time evaluation
+
+// emailInput.addEventListener('keyup', () => {
+//   if (!testFuncs[emailInput]) {
+//     emailInput.parentElement.classList.add('not-valid');
+//     emailInput.parentElement.classList.remove('valid');
+//   } else {
+//     emailInput.parentElement.classList.remove('not-valid');
+//     emailInput.parentElement.classList.add('valid');
+//   }
+// });
+
 // Accessibility
 
   // Add focus highlight on activities
@@ -207,7 +213,7 @@ for (let i = 0; i < checkboxes.length; i++) {
     e.target.parentElement.classList.add('focus');
   });
   checkboxes[i].addEventListener('blur', () => {
-    document.querySelector('.focus').classList.remove('focus');
+    activities.querySelector('.focus').classList.remove('focus');
   });
 }
 
