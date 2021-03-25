@@ -133,38 +133,33 @@ payment.addEventListener("change", e => {
 // Form Validation
 
   // test functions
-let testFuncs = {
-  emailInput: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput.value),
-  nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value)
-}
 
-  // submit event listener
-
-formElement.addEventListener("submit", (e) => {
-  // e.preventDefault();
-
+const testFuncs = key => {
+  const tests = {
+    emailInput: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput.value),
+    nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value)
+  }
   if (payment.value === 'credit-card') {
     // additional tests for credit card payment only
-    testFuncs.zip = /^\d{5}$/.test(zip.value);
-    testFuncs.cvv = /^\d{3}$/.test(cvv.value);
-    testFuncs.expMonth = !isNaN(parseInt(expMonth.value));
-    testFuncs.expYear = !isNaN(parseInt(expYear.value));
+    tests.cardNumber = /^[0-9]{13,16}$/.test(cardNumber.value);
+    tests.zip = /^\d{5}$/.test(zip.value);
+    tests.cvv = /^\d{3}$/.test(cvv.value);
+    tests.expMonth = !isNaN(parseInt(expMonth.value));
+    tests.expYear = !isNaN(parseInt(expYear.value));
   } else {
-    delete testFuncs.expMonth;
-    delete testFuncs.expYear;
-    delete testFuncs.zip;
-    delete testFuncs.cvv;
+    delete tests.expMonth;
+    delete tests.expYear;
+    delete tests.zip;
+    delete tests.cvv;
   }
-
-    // run test functions
-  for (const test in testFuncs) {
-    const hint = eval(test).nextElementSibling && eval(test).nextElementSibling.classList.contains('hint') ? eval(test).nextElementSibling : null;
-    
-    if (!testFuncs[test]) {
+  if (key) {
+    return tests[key];
+  }
+  for (test in tests) {
+    const hint = eval(test).nextElementSibling;
+    if (!tests[test]) {
       // invalid
-      e.preventDefault();
-      console.log(`${test}: ${testFuncs[test]}`);
-      console.log(eval(test).parentElement);
+      submit.preventDefault();
       if (hint) {
         // display hint if it exists
         hint.style.display = 'block';
@@ -178,7 +173,21 @@ formElement.addEventListener("submit", (e) => {
       // eval(test).parentElement.classList.add('valid');
       eval(test).parentElement.classList.remove('not-valid');
     } 
+    
   }
+}
+
+let submit;
+
+formElement.addEventListener("submit", (e) => {
+  // e.preventDefault();
+  submit = e;
+
+    // run test functions
+
+  testFuncs();
+
+    // check for activity selection
 
   if (totalCost === 0) {
     e.preventDefault();
@@ -193,15 +202,15 @@ formElement.addEventListener("submit", (e) => {
 
   // Email real-time evaluation
 
-// emailInput.addEventListener('keyup', () => {
-//   if (!testFuncs[emailInput]) {
-//     emailInput.parentElement.classList.add('not-valid');
-//     emailInput.parentElement.classList.remove('valid');
-//   } else {
-//     emailInput.parentElement.classList.remove('not-valid');
-//     emailInput.parentElement.classList.add('valid');
-//   }
-// });
+emailInput.addEventListener('keyup', () => {
+  if (!testFuncs('emailInput')) {
+    emailInput.parentElement.classList.add('not-valid');
+    emailInput.parentElement.classList.remove('valid');
+  } else {
+    emailInput.parentElement.classList.remove('not-valid');
+    emailInput.parentElement.classList.add('valid');
+  }
+});
 
 // Accessibility
 
