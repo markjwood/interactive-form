@@ -98,7 +98,13 @@ activities.addEventListener("change", e => {
 
   activityCheck(e.target);
 
-  e.target.checked ? totalCost += activityCost : totalCost -= activityCost;
+  if (e.target.checked) {
+    totalCost += activityCost;
+    activities.querySelector('.hint').style.display = 'none';
+    activities.classList.remove('not-valid');
+  } else {
+    totalCost -= activityCost;
+  }
 
   totalCostP.innerHTML = `Total: $${totalCost}`;
   if (totalCost >> 0) {
@@ -137,7 +143,7 @@ payment.addEventListener("change", e => {
 const testFuncs = key => {
   const tests = {
     emailInput: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput.value),
-    nameInput: /^[a-z ,.'-]{2,}$/i.test(nameInput.value)
+    nameInput: /^[a-z ,.'-]+$/i.test(nameInput.value)
   }
   if (payment.value === 'credit-card') {
     // additional tests for credit card payment only
@@ -152,15 +158,30 @@ const testFuncs = key => {
     delete tests.zip;
     delete tests.cvv;
   }
-  if (key) {
-    return tests[key];
-  }
   for (test in tests) {
     const hint = eval(test).nextElementSibling;
     if (!tests[test]) {
       // invalid
       submit.preventDefault();
+
       if (hint) {
+        // Change email hint according to error
+
+        if (test === 'emailInput') {
+          const hintMsg = {
+            blank: [/./.test(emailInput.value), "Email field cannot be blank"],
+            noAt: [/^.*@.*$/.test(emailInput.value), "Email must include '@'"],
+            noSuffix: [/^.+@.*\.[a-z]{2,}$/i.test(emailInput.value), "Email must include domain suffix, e.g. '.com'"]
+          }
+          for (key in hintMsg) {
+            if (!hintMsg[key][0]) {
+              hint.innerHTML = hintMsg[key][1];
+              break;
+            }
+            hint.innerHTML = 'Email must be in the format: name@domain.com';
+          }
+        }
+
         // display hint if it exists
         hint.style.display = 'block';
       }
@@ -174,6 +195,9 @@ const testFuncs = key => {
       eval(test).parentElement.classList.remove('not-valid');
     } 
     
+  }
+  if (key) {
+    return tests[key];
   }
 }
 
@@ -194,13 +218,15 @@ formElement.addEventListener("submit", (e) => {
     console.log('No activities have been selected');
     activities.classList.add('not-valid');
     activities.classList.remove('valid');
+    activities.querySelector('.hint').style.display = 'block';
   } else {
     activities.classList.add('valid');
     activities.classList.remove('not-valid');
+    activities.querySelector('.hint').style.display = 'none';
   }
 });
 
-  // Email real-time evaluation
+  // Real-time evaluation
 
 emailInput.addEventListener('keyup', () => {
   if (!testFuncs('emailInput')) {
@@ -209,6 +235,18 @@ emailInput.addEventListener('keyup', () => {
   } else {
     emailInput.parentElement.classList.remove('not-valid');
     emailInput.parentElement.classList.add('valid');
+    emailInput.nextElementSibling.style.display = 'none';
+  }
+});
+
+nameInput.addEventListener('keyup', () => {
+  if (!testFuncs('nameInput')) {
+    nameInput.parentElement.classList.add('not-valid');
+    nameInput.parentElement.classList.remove('valid');
+  } else {
+    nameInput.parentElement.classList.remove('not-valid');
+    nameInput.parentElement.classList.add('valid');
+    nameInput.nextElementSibling.style.display = 'none';
   }
 });
 
